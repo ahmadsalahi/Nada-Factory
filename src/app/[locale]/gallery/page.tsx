@@ -1,11 +1,9 @@
-import { notFound } from 'next/navigation';
-import { getTranslations } from 'next-intl/server';
 import { neon } from '@neondatabase/serverless';
 import Gallery from '@/components/Services/Gallery';
 import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
 
-// A mock mapping of category images
+// Fallback mock data in case DB is completely empty
 const CATEGORY_IMAGES: Record<string, string[]> = {
   doors: [
     '/images/project/IMG-20250406-WA0060.jpg',
@@ -39,58 +37,46 @@ const CATEGORY_IMAGES: Record<string, string[]> = {
   ]
 };
 
-export default async function ServicePage({
+export default async function AllGalleryPage({
   params
 }: {
-  params: Promise<{ locale: string; slug: string }>
+  params: Promise<{ locale: string }>
 }) {
-  const { locale, slug } = await params;
+  const { locale } = await params;
   
-  let title = '';
-  let desc = '';
+  const title = locale === 'ar' ? 'معرض الصور الشامل' : 'Complete Gallery Portfolio';
+  const desc = locale === 'ar' 
+    ? 'تصفح جميع أعمالنا وإنجازاتنا من مختلف المشاريع والأقسام في مكان واحد.' 
+    : 'Explore all our works and achievements from various projects and categories in one place.';
+  
   let images: string[] = [];
   
   try {
     const sql = neon(process.env.DATABASE_URL!);
+    const galleryRes = await sql`SELECT image_url FROM gallery ORDER BY created_at DESC`;
     
-    // Check if slug is numeric (fallback for older projects without a slug) or a string slug
-    const projectId = parseInt(slug, 10);
-    const isNumeric = !isNaN(projectId) && projectId.toString() === slug;
-
-    const projectRes = isNumeric 
-      ? await sql`SELECT * FROM projects WHERE id = ${projectId}`
-      : await sql`SELECT * FROM projects WHERE slug = ${slug}`;
-
-    if (projectRes.length > 0) {
-      const project = projectRes[0];
-      title = locale === 'ar' ? project.title_ar : project.title_en;
-      desc = locale === 'ar' ? project.desc_ar : project.desc_en;
-      
-      const galleryRes = await sql`SELECT image_url FROM gallery WHERE project_id = ${project.id} ORDER BY created_at DESC`;
+    if (galleryRes.length > 0) {
       images = galleryRes.map(row => row.image_url);
     } else {
-      // Fallback to hardcoded mock data if project is not in DB yet
-      if (CATEGORY_IMAGES[slug]) {
-        const t = await getTranslations({ locale, namespace: 'Services' });
-        title = t(`${slug}Title` as any);
-        desc = t(`${slug}Desc` as any);
-        images = CATEGORY_IMAGES[slug];
-      } else {
-        notFound();
-      }
+      // Fallback if DB gallery is completely empty
+      images = [
+        ...CATEGORY_IMAGES.doors,
+        ...CATEGORY_IMAGES.facades,
+        ...CATEGORY_IMAGES.pergolas
+      ];
     }
   } catch (error) {
     console.error("DB Error:", error);
-    // Fallback to hardcoded mock data if DB fails
-    if (CATEGORY_IMAGES[slug]) {
-      const t = await getTranslations({ locale, namespace: 'Services' });
-      title = t(`${slug}Title` as any);
-      desc = t(`${slug}Desc` as any);
-      images = CATEGORY_IMAGES[slug];
-    } else {
-      notFound();
-    }
+    // Fallback if DB fails
+    images = [
+      ...CATEGORY_IMAGES.doors,
+      ...CATEGORY_IMAGES.facades,
+      ...CATEGORY_IMAGES.pergolas
+    ];
   }
+
+  // Deduplicate array if needed
+  images = Array.from(new Set(images));
 
   return (
     <main style={{ minHeight: '100vh', backgroundColor: 'var(--bg-primary)', paddingTop: '100px' }}>

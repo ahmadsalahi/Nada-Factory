@@ -27,6 +27,8 @@ export async function generateMetadata({params}: {params: Promise<{locale: strin
 
 import CustomCursor from '@/components/UI/CustomCursor';
 
+import { neon } from '@neondatabase/serverless';
+
 export default async function LocaleLayout({
   children,
   params
@@ -44,6 +46,18 @@ export default async function LocaleLayout({
   const dir = locale === 'ar' ? 'rtl' : 'ltr';
   const fontClass = locale === 'ar' ? cairo.variable : `${inter.variable} ${spaceGrotesk.variable}`;
 
+  let dbSettings: any = {};
+  try {
+    const sql = neon(process.env.DATABASE_URL!);
+    const settingsRows = await sql`SELECT * FROM settings`;
+    dbSettings = settingsRows.reduce((acc: any, row) => {
+      acc[row.key] = row.value;
+      return acc;
+    }, {});
+  } catch (error) {
+    console.error("Failed to fetch settings for layout:", error);
+  }
+
   return (
     <html lang={locale} dir={dir} className={fontClass}>
       <body>
@@ -52,7 +66,7 @@ export default async function LocaleLayout({
             <CustomCursor />
             <Navbar />
             {children}
-            <Footer />
+            <Footer dbSettings={dbSettings} />
           </SmoothScrolling>
         </NextIntlClientProvider>
       </body>

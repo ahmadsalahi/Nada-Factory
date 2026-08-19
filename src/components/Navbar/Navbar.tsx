@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
+import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
 import LanguageSwitcher from './LanguageSwitcher';
@@ -10,8 +11,11 @@ import styles from './Navbar.module.css';
 
 export default function Navbar() {
   const t = useTranslations('Navigation');
+  const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  if (pathname.includes('/admin')) return null;
 
   useEffect(() => {
     const handleScroll = () => {

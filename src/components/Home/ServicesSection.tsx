@@ -29,11 +29,26 @@ const servicesData = [
   }
 ];
 
-export default function ServicesSection() {
+export default function ServicesSection({ dbProjects = [] }: { dbProjects?: any[] }) {
   const t = useTranslations('Services');
   const locale = useLocale();
   const ArrowIcon = locale === 'ar' ? ArrowLeft : ArrowRight;
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(0); // First card expanded by default on desktop
+
+  // Use DB projects if available, otherwise fallback to static hardcoded data
+  const displayProjects = dbProjects && dbProjects.length > 0 
+    ? dbProjects.map(p => ({
+        id: p.slug || p.id.toString(),
+        title: locale === 'ar' ? p.title_ar : p.title_en,
+        desc: locale === 'ar' ? p.desc_ar : p.desc_en,
+        image: p.image_url
+      }))
+    : servicesData.map(p => ({
+        id: p.id,
+        title: t(p.titleKey as any),
+        desc: t(p.descKey as any),
+        image: p.image
+      }));
 
   return (
     <section id="projects" className={styles.section}>
@@ -50,7 +65,7 @@ export default function ServicesSection() {
         </motion.div>
 
         <div className={styles.accordionGrid}>
-          {servicesData.map((service, index) => {
+          {displayProjects.map((service, index) => {
             const isHovered = hoveredIndex === index;
             
             return (
@@ -68,7 +83,7 @@ export default function ServicesSection() {
                   <div className={styles.imageWrapper}>
                     <motion.img 
                       src={service.image} 
-                      alt={t(service.titleKey)} 
+                      alt={service.title} 
                       className={styles.image} 
                       animate={{ scale: isHovered ? 1.05 : 1.15 }}
                       transition={{ duration: 0.8 }}
@@ -78,7 +93,7 @@ export default function ServicesSection() {
                   
                   <div className={`${styles.content} ${isHovered ? styles.contentExpanded : ''}`}>
                     <div className={styles.contentInner}>
-                      <h3 className={styles.cardTitle}>{t(service.titleKey)}</h3>
+                      <h3 className={styles.cardTitle}>{service.title}</h3>
                       
                       <motion.div 
                         className={styles.hiddenContent}
@@ -90,7 +105,7 @@ export default function ServicesSection() {
                         }}
                         transition={{ duration: 0.4 }}
                       >
-                        <p className={styles.cardDesc}>{t(service.descKey)}</p>
+                        <p className={styles.cardDesc}>{service.desc}</p>
                         <div className={styles.exploreBtn}>
                           {t('explore')}
                           <ArrowIcon size={16} className={styles.arrow} />
@@ -103,6 +118,43 @@ export default function ServicesSection() {
             );
           })}
         </div>
+
+        <motion.div 
+          style={{ display: 'flex', justifyContent: 'center', marginTop: '3rem' }}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+        >
+          <Link href="/gallery" style={{ 
+            display: 'inline-flex', 
+            alignItems: 'center', 
+            gap: '0.75rem', 
+            padding: '1rem 2rem', 
+            backgroundColor: 'transparent', 
+            color: 'var(--accent-gold)', 
+            border: '2px solid var(--accent-gold)', 
+            borderRadius: '4px', 
+            textDecoration: 'none', 
+            fontWeight: '600', 
+            fontSize: '1.1rem',
+            transition: 'all 0.3s ease',
+            textTransform: 'uppercase',
+            letterSpacing: '1px'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = 'var(--accent-gold)';
+            e.currentTarget.style.color = '#000';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'transparent';
+            e.currentTarget.style.color = 'var(--accent-gold)';
+          }}
+          >
+            {locale === 'ar' ? 'تصفح معرض الصور الكامل' : 'Explore All Gallery'}
+            <ArrowIcon size={20} />
+          </Link>
+        </motion.div>
       </div>
     </section>
   );

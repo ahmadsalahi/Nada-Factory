@@ -2,13 +2,18 @@
 
 import { useTranslations } from 'next-intl';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import styles from './HeroSection.module.css';
 
-export default function HeroSection() {
-  const t = useTranslations('Services'); // Using the translations that have hero stuff
+import { useLocale } from 'next-intl';
+import QuoteModal from './QuoteModal';
+
+export default function HeroSection({ dbSettings = {} }: { dbSettings?: any }) {
+  const t = useTranslations('Services');
   const tHome = useTranslations('HomePage');
+  const locale = useLocale();
   const ref = useRef(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -18,19 +23,32 @@ export default function HeroSection() {
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
   const opacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
 
+  const bgType = dbSettings.hero_bg_type || 'video';
+  const bgUrl = dbSettings.hero_bg_url || '/hero-video.mp4';
+
   return (
     <section ref={ref} className={styles.heroSection}>
-      {/* Video Background */}
+      {/* Dynamic Background */}
       <div className={styles.videoWrapper}>
-        <video 
-          autoPlay 
-          loop 
-          muted 
-          playsInline 
-          className={styles.videoBackground}
-        >
-          <source src="/hero-video.mp4" type="video/mp4" />
-        </video>
+        {bgType === 'video' ? (
+          <video 
+            key={bgUrl} // Forces video element to reload when URL changes
+            autoPlay 
+            loop 
+            muted 
+            playsInline 
+            className={styles.videoBackground}
+          >
+            <source src={bgUrl} type="video/mp4" />
+          </video>
+        ) : (
+          <img 
+            key={bgUrl}
+            src={bgUrl} 
+            alt="Hero Background" 
+            className={styles.videoBackground} // Reusing class for object-fit cover
+          />
+        )}
         
         {/* Particle Overlay for Video Feel */}
         <div className={styles.particlesContainer}>
@@ -53,7 +71,9 @@ export default function HeroSection() {
           className={styles.titleWrapper}
         >
           <h1 className={styles.title}>
-            {tHome('heroTitle')}
+            {locale === 'ar' 
+              ? (dbSettings.hero_title_ar || tHome('heroTitle')) 
+              : (dbSettings.hero_title_en || tHome('heroTitle'))}
           </h1>
         </motion.div>
 
@@ -66,16 +86,35 @@ export default function HeroSection() {
           {tHome('heroSubtitle')}
         </motion.p>
 
-        <motion.button 
-          className={styles.ctaButton}
+        <motion.div 
+          style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, delay: 1.2 }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
         >
-          {tHome('cta')}
-        </motion.button>
+          <motion.button 
+            className={styles.ctaButton}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setIsModalOpen(true)}
+          >
+            {tHome('cta')}
+          </motion.button>
+          
+          {dbSettings.company_profile_pdf && (
+            <motion.a 
+              href={dbSettings.company_profile_pdf}
+              target="_blank"
+              rel="noreferrer"
+              className={styles.ctaButton}
+              style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              {locale === 'ar' ? 'ملف الشركة (Profile)' : 'Our Profile'}
+            </motion.a>
+          )}
+        </motion.div>
       </motion.div>
       
       {/* Scroll Indicator */}
@@ -89,6 +128,12 @@ export default function HeroSection() {
           <div className={styles.wheel}></div>
         </div>
       </motion.div>
+
+      <QuoteModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        dbSettings={dbSettings} 
+      />
     </section>
   );
 }

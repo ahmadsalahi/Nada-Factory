@@ -1,12 +1,33 @@
+'use client';
+
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
-import { FaWhatsapp, FaInstagram, FaLinkedinIn, FaXTwitter, FaFacebookF } from 'react-icons/fa6';
+import { usePathname } from 'next/navigation';
+import { FaWhatsapp, FaInstagram, FaLinkedinIn, FaXTwitter, FaFacebookF, FaYoutube, FaSnapchat, FaTiktok, FaMapLocationDot, FaPhone, FaEnvelope, FaGlobe } from 'react-icons/fa6';
 import styles from './Footer.module.css';
 
-export default function Footer() {
+const IconMap: any = {
+  FaWhatsapp, FaInstagram, FaLinkedinIn, FaXTwitter, FaFacebookF, FaYoutube, FaSnapchat, FaTiktok, FaMapLocationDot, FaPhone, FaEnvelope, FaGlobe
+};
+
+export default function Footer({ dbSettings = {} }: { dbSettings?: any }) {
   const tNav = useTranslations('Navigation');
   const tFooter = useTranslations('Footer');
+  const pathname = usePathname();
   const currentYear = new Date().getFullYear();
+
+  if (pathname.includes('/admin')) return null;
+
+  let socialLinks = [];
+  try {
+    if (dbSettings.social_links) {
+      socialLinks = JSON.parse(dbSettings.social_links);
+    } else {
+      if (dbSettings.whatsapp) socialLinks.push({ icon: 'FaWhatsapp', url: dbSettings.whatsapp });
+      if (dbSettings.instagram) socialLinks.push({ icon: 'FaInstagram', url: dbSettings.instagram });
+      if (dbSettings.linkedin) socialLinks.push({ icon: 'FaLinkedinIn', url: dbSettings.linkedin });
+    }
+  } catch(e) {}
 
   return (
     <footer className={styles.footer}>
@@ -32,25 +53,19 @@ export default function Footer() {
 
         <div className={styles.contact}>
           <h4 className={styles.title}>{tFooter('contactUs')}</h4>
-          <p className={styles.info}>info@nadaindustries.com</p>
-          <p className={styles.info}>+123 456 7890</p>
+          {dbSettings.email && <p className={styles.info}>{dbSettings.email}</p>}
+          {dbSettings.phone && <p className={styles.info} dir="ltr" style={{ textAlign: 'left' }}>{dbSettings.phone}</p>}
           
           <div className={styles.socials}>
-            <a href="#" target="_blank" rel="noopener noreferrer" className={styles.socialLink} aria-label="WhatsApp">
-              <FaWhatsapp />
-            </a>
-            <a href="#" target="_blank" rel="noopener noreferrer" className={styles.socialLink} aria-label="Instagram">
-              <FaInstagram />
-            </a>
-            <a href="#" target="_blank" rel="noopener noreferrer" className={styles.socialLink} aria-label="LinkedIn">
-              <FaLinkedinIn />
-            </a>
-            <a href="#" target="_blank" rel="noopener noreferrer" className={styles.socialLink} aria-label="X (Twitter)">
-              <FaXTwitter />
-            </a>
-            <a href="#" target="_blank" rel="noopener noreferrer" className={styles.socialLink} aria-label="Facebook">
-              <FaFacebookF />
-            </a>
+            {socialLinks.map((link: any, idx: number) => {
+              const IconComponent = IconMap[link.icon];
+              if (!IconComponent) return null;
+              return (
+                <a key={idx} href={link.url} target="_blank" rel="noopener noreferrer" className={styles.socialLink}>
+                  <IconComponent />
+                </a>
+              );
+            })}
           </div>
         </div>
       </div>
