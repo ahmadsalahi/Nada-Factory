@@ -4,8 +4,8 @@ import ServicesSection from '@/components/Home/ServicesSection';
 import { neon } from '@neondatabase/serverless';
 
 export default async function HomePage() {
-  let dbProjects = [];
-  let dbAboutImages = [];
+  let dbProjects: any[] = [];
+  let dbAboutImages: any[] = [];
   let dbSettings: any = {};
 
   try {

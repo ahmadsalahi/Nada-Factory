@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import styles from '../../admin.module.css';
 
 export default function ManageAdminPage() {
-  const [settings, setSettings] = useState({
+  const [settings, setSettings] = useState<any>({
     smtp_email: '',
     smtp_password: '',
     admin_email: '',
@@ -37,9 +37,7 @@ export default function ManageAdminPage() {
     setSaving(true);
     setMessage('');
 
-    const payloadToSave = { ...settings };
-    const newPassword = payloadToSave.new_admin_password;
-    delete payloadToSave.new_admin_password;
+    const { new_admin_password: newPassword, ...payloadToSave } = settings;
 
     try {
       // Save general settings (smtp, admin_email)
@@ -56,7 +54,7 @@ export default function ManageAdminPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ newPassword }),
         });
-        setSettings(prev => ({ ...prev, new_admin_password: '' })); // clear field
+        setSettings((prev: any) => ({ ...prev, new_admin_password: '' })); // clear field
       }
 
       if (res.ok) setMessage('Admin settings updated successfully! ✅');

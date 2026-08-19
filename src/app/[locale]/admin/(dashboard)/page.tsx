@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import styles from '../admin.module.css';
 
 export default function AdminSettingsPage() {
-  const [settings, setSettings] = useState({
+  const [settings, setSettings] = useState<any>({
     hero_title_en: '',
     hero_title_ar: '',
     hero_bg_type: 'video',
@@ -40,7 +40,7 @@ export default function AdminSettingsPage() {
           if (data.instagram) parsedSocialLinks.push({ icon: 'FaInstagram', url: data.instagram });
           if (data.linkedin) parsedSocialLinks.push({ icon: 'FaLinkedinIn', url: data.linkedin });
         }
-        setSettings(prev => ({ ...prev, ...data, social_links: parsedSocialLinks }));
+        setSettings((prev: any) => ({ ...prev, ...data, social_links: parsedSocialLinks }));
         setLoading(false);
       });
   }, []);
@@ -89,9 +89,6 @@ export default function AdminSettingsPage() {
       ...settings,
       social_links: JSON.stringify(settings.social_links)
     };
-    
-    const newPassword = payloadToSave.new_admin_password;
-    delete payloadToSave.new_admin_password;
 
     try {
       const res = await fetch('/api/admin/settings', {
@@ -99,15 +96,6 @@ export default function AdminSettingsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payloadToSave),
       });
-
-      if (newPassword) {
-        await fetch('/api/admin/change-password', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ newPassword }),
-        });
-        setSettings(prev => ({ ...prev, new_admin_password: '' })); // clear field
-      }
 
       if (res.ok) setMessage('Settings saved successfully! ✅');
       else setMessage('Failed to save settings. ❌');
