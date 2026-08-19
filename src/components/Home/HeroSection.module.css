@@ -1,11 +1,18 @@
 .heroSection {
-  height: 100vh;
+  height: 100dvh; /* Dynamic viewport height for better mobile support */
+  min-height: 100vh; /* Fallback */
   width: 100%;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+}
+
+@supports (-webkit-touch-callout: none) {
+  .heroSection {
+    height: -webkit-fill-available; /* Fix for iOS Safari address bar */
+  }
 }
 
 .videoWrapper {
@@ -21,6 +28,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center center; /* Ensure the center of the video stays in focus on mobile */
 }
 
 .animatedBackground {
