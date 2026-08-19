@@ -1,0 +1,38 @@
+.cursorDot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  background-color: var(--accent-gold);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 99999;
+}
+
+.cursorRing {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 99998;
+}
+
+/* Hide default cursor and custom cursor on smaller screens */
+@media (max-width: 1024px) {
+  .cursorDot, .cursorRing {
+    display: none !important;
+  }
+}
+
+/* Add this to globals.css later: */
+/*
+@media (min-width: 1025px) {
+  * {
+    cursor: none !important;
+  }
+}
+*/

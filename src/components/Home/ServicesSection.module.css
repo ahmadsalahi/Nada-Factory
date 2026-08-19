@@ -1,0 +1,154 @@
+.section {
+  padding: 8rem 0;
+  background-color: var(--bg-secondary);
+  position: relative;
+}
+
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.header {
+  margin-bottom: 4rem;
+}
+
+.title {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  max-width: 600px;
+}
+
+/* Accordion Grid */
+.accordionGrid {
+  display: flex;
+  flex-direction: column; /* Mobile: Stacked vertically */
+  gap: 1rem;
+  height: 900px;
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .accordionGrid {
+    flex-direction: row; /* Desktop: Side by side */
+    height: 600px;
+    gap: 1.5rem;
+  }
+}
+
+.cardWrapper {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  /* Default flex basis for mobile so they share height */
+  flex: 1;
+}
+
+.cardLink {
+  display: block;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+}
+
+.imageWrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.1) 100%);
+  transition: background 0.4s ease;
+}
+
+.overlayHovered {
+  background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0.2) 100%);
+}
+
+.content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 2rem;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.contentInner {
+  width: 100%;
+  max-width: 500px;
+}
+
+.cardTitle {
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  color: var(--text-primary);
+  white-space: nowrap;
+  font-weight: 700;
+  text-shadow: 0 4px 15px rgba(0,0,0,0.8);
+}
+
+.hiddenContent {
+  overflow: hidden;
+}
+
+.cardDesc {
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+}
+
+@media (min-width: 1024px) {
+  .cardTitle {
+    /* Write vertically on non-hovered items if needed, or keep horizontal */
+    writing-mode: horizontal-tb;
+  }
+}
+
+.exploreBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--accent-gold);
+  font-weight: 600;
+  transition: gap 0.3s ease;
+}
+
+.cardWrapper:hover .exploreBtn {
+  gap: 1rem;
+}
+
+/* Enhancing Mobile Animation */
+@media (max-width: 1023px) {
+  .cardWrapper {
+    transition: flex 0.4s ease;
+  }
+  .cardDesc {
+    font-size: 0.95rem;
+  }
+}
