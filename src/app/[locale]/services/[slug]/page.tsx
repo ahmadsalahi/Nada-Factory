@@ -45,6 +45,7 @@ export default async function ServicePage({
   params: Promise<{ locale: string; slug: string }>
 }) {
   const { locale, slug } = await params;
+  const decodedSlug = decodeURIComponent(slug);
   
   let title = '';
   let desc = '';
@@ -54,12 +55,12 @@ export default async function ServicePage({
     const sql = neon(process.env.DATABASE_URL!);
     
     // Check if slug is numeric (fallback for older projects without a slug) or a string slug
-    const projectId = parseInt(slug, 10);
-    const isNumeric = !isNaN(projectId) && projectId.toString() === slug;
+    const projectId = parseInt(decodedSlug, 10);
+    const isNumeric = !isNaN(projectId) && projectId.toString() === decodedSlug;
 
     const projectRes = isNumeric 
       ? await sql`SELECT * FROM projects WHERE id = ${projectId}`
-      : await sql`SELECT * FROM projects WHERE slug = ${slug}`;
+      : await sql`SELECT * FROM projects WHERE slug = ${decodedSlug}`;
 
     if (projectRes.length > 0) {
       const project = projectRes[0];
@@ -70,11 +71,11 @@ export default async function ServicePage({
       images = galleryRes.map(row => row.image_url);
     } else {
       // Fallback to hardcoded mock data if project is not in DB yet
-      if (CATEGORY_IMAGES[slug]) {
+      if (CATEGORY_IMAGES[decodedSlug]) {
         const t = await getTranslations({ locale, namespace: 'Services' });
-        title = t(`${slug}Title` as any);
-        desc = t(`${slug}Desc` as any);
-        images = CATEGORY_IMAGES[slug];
+        title = t(`${decodedSlug}Title` as any);
+        desc = t(`${decodedSlug}Desc` as any);
+        images = CATEGORY_IMAGES[decodedSlug];
       } else {
         notFound();
       }
@@ -82,11 +83,11 @@ export default async function ServicePage({
   } catch (error) {
     console.error("DB Error:", error);
     // Fallback to hardcoded mock data if DB fails
-    if (CATEGORY_IMAGES[slug]) {
+    if (CATEGORY_IMAGES[decodedSlug]) {
       const t = await getTranslations({ locale, namespace: 'Services' });
-      title = t(`${slug}Title` as any);
-      desc = t(`${slug}Desc` as any);
-      images = CATEGORY_IMAGES[slug];
+      title = t(`${decodedSlug}Title` as any);
+      desc = t(`${decodedSlug}Desc` as any);
+      images = CATEGORY_IMAGES[decodedSlug];
     } else {
       notFound();
     }

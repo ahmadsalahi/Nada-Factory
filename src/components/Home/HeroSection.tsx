@@ -111,7 +111,7 @@ export default function HeroSection({ dbSettings = {} }: { dbSettings?: any }) {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              {locale === 'ar' ? 'ملف الشركة (Profile)' : 'Our Profile'}
+              {locale === 'ar' ? 'بروفايل الشركة' : 'Our Profile'}
             </motion.a>
           )}
         </motion.div>
