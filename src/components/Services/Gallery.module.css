@@ -156,4 +156,65 @@ html[dir="rtl"] .closeBtn {
   object-fit: contain;
   border-radius: 8px;
   box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  pointer-events: none; /* Prevents dragging the image itself instead of the framer-motion container */
+}
+
+.navBtn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  color: white;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10000;
+  transition: all 0.3s ease;
+}
+
+.navBtn:hover {
+  background: var(--accent-gold);
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+}
+
+.prevBtn {
+  left: 2rem;
+}
+
+.nextBtn {
+  right: 2rem;
+}
+
+.imageCounter {
+  position: absolute;
+  bottom: -2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  color: white;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  letter-spacing: 2px;
+}
+
+/* Adjustments for smaller screens */
+@media (max-width: 768px) {
+  .navBtn {
+    width: 45px;
+    height: 45px;
+  }
+  
+  .prevBtn {
+    left: 1rem;
+  }
+  
+  .nextBtn {
+    right: 1rem;
+  }
 }
