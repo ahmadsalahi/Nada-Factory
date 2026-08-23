@@ -1,6 +1,6 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { usePathname } from 'next/navigation';
 import { FaWhatsapp, FaInstagram, FaLinkedinIn, FaXTwitter, FaFacebookF, FaYoutube, FaSnapchat, FaTiktok, FaMapLocationDot, FaPhone, FaEnvelope, FaGlobe } from 'react-icons/fa6';
@@ -14,6 +14,7 @@ export default function Footer({ dbSettings = {} }: { dbSettings?: any }) {
   const tNav = useTranslations('Navigation');
   const tFooter = useTranslations('Footer');
   const pathname = usePathname();
+  const locale = useLocale();
   const currentYear = new Date().getFullYear();
 
   if (pathname.includes('/admin')) return null;
@@ -30,7 +31,7 @@ export default function Footer({ dbSettings = {} }: { dbSettings?: any }) {
   } catch(e) {}
 
   return (
-    <footer className={styles.footer}>
+    <footer id="contact" className={styles.footer}>
       <div className={styles.container}>
         <div className={styles.brand}>
           <div className={styles.logo}>
@@ -53,10 +54,23 @@ export default function Footer({ dbSettings = {} }: { dbSettings?: any }) {
 
         <div className={styles.contact}>
           <h4 className={styles.title}>{tFooter('contactUs')}</h4>
-          {dbSettings.email && <p className={styles.info}>{dbSettings.email}</p>}
-          {dbSettings.phone && <p className={styles.info} dir="ltr" style={{ textAlign: 'left' }}>{dbSettings.phone}</p>}
+          {dbSettings.email && (
+            <p className={styles.info} style={{ textAlign: locale === 'ar' ? 'right' : 'left' }}>
+              <span dir="ltr">{dbSettings.email}</span>
+            </p>
+          )}
+          {dbSettings.phone && (
+            <p className={styles.info} style={{ textAlign: locale === 'ar' ? 'right' : 'left' }}>
+              <span dir="ltr">{dbSettings.phone}</span>
+            </p>
+          )}
+          {dbSettings.phone2 && (
+            <p className={styles.info} style={{ textAlign: locale === 'ar' ? 'right' : 'left' }}>
+              <span dir="ltr">{dbSettings.phone2}</span>
+            </p>
+          )}
           
-          <div className={styles.socials}>
+          <div className={styles.socials} style={{ justifyContent: locale === 'ar' ? 'flex-start' : 'flex-start' }}>
             {socialLinks.map((link: any, idx: number) => {
               const IconComponent = IconMap[link.icon];
               if (!IconComponent) return null;

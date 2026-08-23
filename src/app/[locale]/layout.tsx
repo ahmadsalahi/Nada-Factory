@@ -7,6 +7,7 @@ import '../globals.css';
 import Navbar from '@/components/Navbar/Navbar';
 import Footer from '@/components/Footer/Footer';
 import SmoothScrolling from '@/components/SmoothScrolling';
+import FloatingContact from '@/components/FloatingContact/FloatingContact';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], variable: '--font-space' });
@@ -67,6 +68,7 @@ export default async function LocaleLayout({
             <Navbar />
             {children}
             <Footer dbSettings={dbSettings} />
+            <FloatingContact dbSettings={dbSettings} />
           </SmoothScrolling>
         </NextIntlClientProvider>
       </body>

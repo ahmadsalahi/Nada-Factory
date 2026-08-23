@@ -1,0 +1,77 @@
+.floatingContainer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100vw;
+  height: 0;
+  z-index: 9999;
+  pointer-events: none; /* Let clicks pass through the container */
+}
+
+.floatingBtn {
+  position: fixed;
+  bottom: 2rem;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  text-decoration: none;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  pointer-events: auto; /* Enable clicks on the buttons */
+  z-index: 9999;
+}
+
+.floatingBtn:hover {
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+.whatsappBtn {
+  background-color: var(--accent-gold);
+}
+
+.whatsappBtn:hover {
+  background-color: var(--accent-gold-dark);
+}
+
+.phoneBtn {
+  background-color: var(--accent-gold);
+}
+
+.phoneBtn:hover {
+  background-color: var(--accent-gold-dark);
+}
+
+.leftBtn {
+  left: 2rem;
+}
+
+.rightBtn {
+  right: 2rem;
+}
+
+/* On mobile, make them a bit smaller and closer to the edges */
+@media (max-width: 768px) {
+  .floatingBtn {
+    bottom: 1.5rem;
+    width: 50px;
+    height: 50px;
+  }
+
+  .floatingBtn svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .leftBtn {
+    left: 1.5rem;
+  }
+
+  .rightBtn {
+    right: 1.5rem;
+  }
+}

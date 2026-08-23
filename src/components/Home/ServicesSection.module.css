@@ -147,8 +147,18 @@
 @media (max-width: 1023px) {
   .cardWrapper {
     transition: flex 0.4s ease;
+    /* Give each card a fixed minimum height on mobile so they stack nicely expanded */
+    min-height: 250px;
   }
   .cardDesc {
     font-size: 0.95rem;
+  }
+  .hiddenContent {
+    height: auto !important;
+    opacity: 1 !important;
+    margin-top: 1rem !important;
+  }
+  .content {
+    background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 60%, transparent 100%);
   }
 }

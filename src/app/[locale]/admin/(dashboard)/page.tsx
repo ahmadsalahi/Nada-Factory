@@ -211,8 +211,12 @@ export default function AdminSettingsPage() {
             <input name="email" type="email" value={settings.email || ''} onChange={handleChange} className={styles.input} placeholder="info@nadaindustries.com" />
           </div>
           <div className={styles.formGroup}>
-            <label className={styles.label}>Phone Number</label>
+            <label className={styles.label}>Phone Number 1</label>
             <input name="phone" value={settings.phone || ''} onChange={handleChange} className={styles.input} placeholder="+123 456 7890" dir="ltr" />
+          </div>
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Phone Number 2</label>
+            <input name="phone2" value={settings.phone2 || ''} onChange={handleChange} className={styles.input} placeholder="+123 456 7890" dir="ltr" />
           </div>
         </div>
 

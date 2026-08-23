@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Phone, Mail, MessageSquare } from 'lucide-react';
+import { X, Phone } from 'lucide-react';
+import { FaWhatsapp } from 'react-icons/fa6';
 import styles from './QuoteModal.module.css';
 import { useLocale } from 'next-intl';
 
@@ -61,6 +62,20 @@ export default function QuoteModal({
     }
   };
 
+  let whatsappUrl = dbSettings?.whatsapp || '';
+  if (!whatsappUrl && dbSettings?.social_links) {
+    try {
+      const links = JSON.parse(dbSettings.social_links);
+      const waLink = links.find((l: any) => l.icon === 'FaWhatsapp');
+      if (waLink && waLink.url) whatsappUrl = waLink.url;
+    } catch(e) {}
+  }
+
+  if (!whatsappUrl && dbSettings?.phone) {
+    const cleanPhone = dbSettings.phone.replace(/[^0-9]/g, '');
+    whatsappUrl = `https://wa.me/${cleanPhone}`;
+  }
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -87,28 +102,24 @@ export default function QuoteModal({
                 {locale === 'ar' ? 'طلب عرض سعر' : 'Request a Quote'}
               </h2>
               
-              {/* Direct Contact Info */}
-              <div className={styles.directContact}>
-                <p className={styles.contactSubtitle}>
-                  {locale === 'ar' ? 'تواصل معنا مباشرة عبر:' : 'Contact us directly via:'}
-                </p>
-                <div className={styles.contactLinks}>
-                  {dbSettings.phone && (
-                    <a href={`tel:${dbSettings.phone}`} className={styles.contactLink} title="Phone">
-                      <Phone size={20} />
-                    </a>
-                  )}
-                  {dbSettings.whatsapp && (
-                    <a href={dbSettings.whatsapp} target="_blank" rel="noreferrer" className={styles.contactLink} title="WhatsApp">
-                      <MessageSquare size={20} />
-                    </a>
-                  )}
-                  {dbSettings.email && (
-                    <a href={`mailto:${dbSettings.email}`} className={styles.contactLink} title="Email">
-                      <Mail size={20} />
-                    </a>
-                  )}
-                </div>
+              {/* Direct Contact Buttons (Replaced old small icons with big buttons) */}
+              <div className={styles.directContactButtons}>
+                {whatsappUrl && (
+                  <a href={whatsappUrl} target="_blank" rel="noreferrer" className={`${styles.bigContactBtn} ${styles.btnWhatsapp}`}>
+                    <FaWhatsapp size={20} />
+                    <span>{locale === 'ar' ? 'واتساب' : 'WhatsApp'}</span>
+                  </a>
+                )}
+                {dbSettings.phone && (
+                  <a href={`tel:${dbSettings.phone}`} className={`${styles.bigContactBtn} ${styles.btnPhone}`}>
+                    <Phone size={20} />
+                    <span>{locale === 'ar' ? 'اتصال' : 'Call'}</span>
+                  </a>
+                )}
+              </div>
+              
+              <div className={styles.divider}>
+                <span>{locale === 'ar' ? 'أو عبر النموذج' : 'Or via form'}</span>
               </div>
 
               {success ? (
