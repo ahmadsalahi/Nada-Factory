@@ -47,7 +47,7 @@ export default function AdminSettingsPage() {
       });
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setSettings({ ...settings, [e.target.name]: e.target.value });
   };
 
