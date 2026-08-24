@@ -26,6 +26,11 @@ export async function generateMetadata({params}: {params: Promise<{locale: strin
   };
 }
 
+export const viewport = {
+  themeColor: '#0A0A0A',
+  colorScheme: 'dark',
+};
+
 import CustomCursor from '@/components/UI/CustomCursor';
 
 import { neon } from '@neondatabase/serverless';
