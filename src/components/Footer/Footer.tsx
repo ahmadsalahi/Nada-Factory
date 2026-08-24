@@ -38,7 +38,7 @@ export default function Footer({ dbSettings = {} }: { dbSettings?: any }) {
              <img src="/logo.jpeg" alt="Nada Industries Logo" style={{ height: '60px', width: 'auto', objectFit: 'contain', borderRadius: '4px' }} />
           </div>
           <p className={styles.description}>
-            {tFooter('description')}
+            {locale === 'ar' ? (dbSettings.hero_subtitle_ar || tFooter('description')) : (dbSettings.hero_subtitle_en || tFooter('description'))}
           </p>
         </div>
 
