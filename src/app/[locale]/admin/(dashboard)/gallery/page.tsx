@@ -13,8 +13,13 @@ export default function AdminGalleryPage() {
   
   // New Image / Edit State
   const [selectedProjectId, setSelectedProjectId] = useState<string>('');
-  const [newImageUrl, setNewImageUrl] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [newImageUrl, setNewImageUrl] = useState(''); // Kept for editing mode or URL pasting
+  
+  // Bulk Upload State
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0 });
+  const [isDragging, setIsDragging] = useState(false);
 
   const fetchProjects = async () => {
     const res = await fetch('/api/admin/projects');
@@ -38,31 +43,26 @@ export default function AdminGalleryPage() {
 
   useEffect(() => { loadData(); }, []);
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || e.target.files.length === 0) return;
-    const file = e.target.files[0];
-    setUploading(true);
-    try {
-      const res = await fetch(`/api/upload?filename=${file.name}`, {
-        method: 'POST',
-        body: file,
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        alert("Upload failed: " + (data.error || 'Unknown error'));
-        return;
-      }
-      setNewImageUrl(data.url);
-    } catch (err: any) {
-      alert("Error uploading image: " + err.message);
-    } finally {
-      setUploading(false);
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setSelectedFiles(prev => [...prev, ...Array.from(e.target.files!)]);
     }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files) {
+      setSelectedFiles(prev => [...prev, ...Array.from(e.dataTransfer.files)]);
+    }
+  };
+
+  const removeFile = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSaveImage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newImageUrl) { alert("Please upload or paste an image URL first!"); return; }
     if (!selectedProjectId) { alert("Please select a project category!"); return; }
     
     if (editingId) {
@@ -72,17 +72,62 @@ export default function AdminGalleryPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ project_id: parseInt(selectedProjectId) }),
       });
-    } else {
-      // Create new image
-      await fetch('/api/admin/gallery', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image_url: newImageUrl, project_id: parseInt(selectedProjectId) }),
-      });
+      cancelEdit();
+      fetchGallery();
+      return;
+    } 
+
+    if (selectedFiles.length === 0 && !newImageUrl) {
+      alert("Please select images to upload or paste a URL!");
+      return;
     }
+
+    setUploading(true);
     
-    cancelEdit();
-    fetchGallery();
+    try {
+      // 1. Upload pasted URL if provided
+      if (newImageUrl) {
+        await fetch('/api/admin/gallery', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image_url: newImageUrl, project_id: parseInt(selectedProjectId) }),
+        });
+      }
+
+      // 2. Bulk upload files
+      if (selectedFiles.length > 0) {
+        setUploadProgress({ current: 0, total: selectedFiles.length });
+        
+        for (let i = 0; i < selectedFiles.length; i++) {
+          const file = selectedFiles[i];
+          const formData = new FormData();
+          formData.append('file', file);
+          
+          const res = await fetch(`/api/upload?filename=${encodeURIComponent(file.name)}`, {
+            method: 'POST',
+            body: file,
+          });
+          
+          if (res.ok) {
+            const data = await res.json();
+            await fetch('/api/admin/gallery', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ image_url: data.url, project_id: parseInt(selectedProjectId) }),
+            });
+          }
+          setUploadProgress(prev => ({ ...prev, current: i + 1 }));
+        }
+      }
+
+      cancelEdit();
+      fetchGallery();
+    } catch (err: any) {
+      alert("Error during upload: " + err.message);
+    } finally {
+      setUploading(false);
+      setUploadProgress({ current: 0, total: 0 });
+    }
   };
 
   const handleEditClick = (item: any) => {
@@ -95,7 +140,7 @@ export default function AdminGalleryPage() {
   const cancelEdit = () => {
     setEditingId(null);
     setNewImageUrl('');
-    // keep selected project ID as is for convenience
+    setSelectedFiles([]);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -143,20 +188,59 @@ export default function AdminGalleryPage() {
           </div>
 
           <div className={styles.formGroup}>
-            <label className={styles.label}>Image File {editingId && '(Cannot be changed during category update)'}</label>
+            <label className={styles.label}>Image Files {editingId && '(Cannot be changed during category update)'}</label>
+            
+            {!editingId && (
+              <div 
+                onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                onDragLeave={() => setIsDragging(false)}
+                onDrop={handleDrop}
+                style={{
+                  border: `2px dashed ${isDragging ? 'var(--accent-gold)' : 'rgba(255,255,255,0.2)'}`,
+                  borderRadius: '8px',
+                  padding: '2rem',
+                  textAlign: 'center',
+                  backgroundColor: isDragging ? 'rgba(212, 175, 55, 0.05)' : 'rgba(0,0,0,0.2)',
+                  transition: 'all 0.2s',
+                  marginBottom: '1rem',
+                  cursor: 'pointer'
+                }}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>📁</div>
+                <p style={{ margin: '0 0 0.5rem 0', color: 'var(--text-primary)' }}>
+                  Drag & Drop images here
+                </p>
+                <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                  or click to select multiple files
+                </p>
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  accept="image/*" 
+                  multiple 
+                  onChange={handleFileSelect} 
+                  style={{ display: 'none' }} 
+                />
+              </div>
+            )}
+
+            {selectedFiles.length > 0 && (
+              <div style={{ marginBottom: '1rem', display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                {selectedFiles.map((file, idx) => (
+                  <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(212, 175, 55, 0.1)', padding: '0.25rem 0.5rem', borderRadius: '4px', border: '1px solid var(--accent-gold)', fontSize: '0.85rem' }}>
+                    <span style={{ maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{file.name}</span>
+                    <button type="button" onClick={(e) => { e.stopPropagation(); removeFile(idx); }} style={{ background: 'none', border: 'none', color: '#ff4444', cursor: 'pointer', padding: '0 2px' }}>×</button>
+                  </div>
+                ))}
+              </div>
+            )}
+
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-              {!editingId && (
-                <>
-                  <label className={styles.btnSecondary} style={{ cursor: 'pointer', margin: 0 }}>
-                    {uploading ? 'Uploading...' : '📁 Choose Image File'}
-                    <input type="file" ref={fileInputRef} accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} />
-                  </label>
-                  <span style={{ color: 'var(--text-secondary)' }}>OR</span>
-                </>
-              )}
+              <span style={{ color: 'var(--text-secondary)' }}>OR Paste URL:</span>
               <input 
                 type="text" 
-                placeholder="Paste URL: https://example.com/image.jpg" 
+                placeholder="https://example.com/image.jpg" 
                 className={styles.input} 
                 value={newImageUrl} 
                 onChange={e => setNewImageUrl(e.target.value)} 
@@ -169,8 +253,8 @@ export default function AdminGalleryPage() {
           </div>
 
           <div>
-            <button type="submit" disabled={uploading || !newImageUrl || !selectedProjectId} className={styles.btnPrimary}>
-              {editingId ? 'Save New Category' : '+ Add to Gallery'}
+            <button type="submit" disabled={uploading || (selectedFiles.length === 0 && !newImageUrl) || !selectedProjectId} className={styles.btnPrimary} style={{ width: '100%' }}>
+              {uploading ? `Uploading... (${uploadProgress.current}/${uploadProgress.total})` : (editingId ? 'Save New Category' : `+ Add ${selectedFiles.length > 0 ? selectedFiles.length : ''} Images to Gallery`)}
             </button>
           </div>
         </form>
