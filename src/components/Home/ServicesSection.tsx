@@ -29,7 +29,7 @@ const servicesData = [
   }
 ];
 
-export default function ServicesSection({ dbProjects = [] }: { dbProjects?: any[] }) {
+export default function ServicesSection({ dbProjects = [], dbSettings = {} }: { dbProjects?: any[], dbSettings?: any }) {
   const t = useTranslations('Services');
   const locale = useLocale();
   const ArrowIcon = locale === 'ar' ? ArrowLeft : ArrowRight;
@@ -50,6 +50,14 @@ export default function ServicesSection({ dbProjects = [] }: { dbProjects?: any[
         image: p.image
       }));
 
+  const sectionTitle = locale === 'ar' 
+    ? (dbSettings.projects_title_ar || t('sectionTitle')) 
+    : (dbSettings.projects_title_en || t('sectionTitle'));
+    
+  const sectionSubtitle = locale === 'ar' 
+    ? (dbSettings.projects_desc_ar || t('sectionSubtitle')) 
+    : (dbSettings.projects_desc_en || t('sectionSubtitle'));
+
   return (
     <section id="projects" className={styles.section}>
       <div className={styles.container}>
@@ -60,8 +68,8 @@ export default function ServicesSection({ dbProjects = [] }: { dbProjects?: any[
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className={styles.title}>{t('sectionTitle')}</h2>
-          <p className={styles.subtitle}>{t('sectionSubtitle')}</p>
+          <h2 className={styles.title}>{sectionTitle}</h2>
+          <p className={styles.subtitle}>{sectionSubtitle}</p>
         </motion.div>
 
         <div className={styles.accordionGrid}>

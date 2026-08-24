@@ -52,8 +52,8 @@ export default function AboutSection({ dbImages = [], dbSettings = {} }: { dbIma
   
   if (parsedStats.length === 0) {
     parsedStats = [
-      { value: '25+', label_en: 'Years Experience', label_ar: 'عاماً من الخبرة' },
-      { value: '1500+', label_en: 'Completed Projects', label_ar: 'مشروع منجز' },
+      { value: '+10', label_en: 'Years Warranty', label_ar: 'سنوات ضمان' },
+      { value: '100%', label_en: 'On-time Delivery', label_ar: 'التزام بالمواعيد' },
       { value: '100%', label_en: 'Client Satisfaction', label_ar: 'رضا العملاء' }
     ];
   }

@@ -79,11 +79,11 @@ export default function HeroSection({ dbSettings = {} }: { dbSettings?: any }) {
 
         <motion.p 
           className={styles.subtitle}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 0.8 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
         >
-          {tHome('heroSubtitle')}
+          {locale === 'ar' ? (dbSettings.hero_subtitle_ar || tHome('heroSubtitle')) : (dbSettings.hero_subtitle_en || tHome('heroSubtitle'))}
         </motion.p>
 
         <motion.div 

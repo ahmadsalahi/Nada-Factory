@@ -16,13 +16,45 @@ export default function AdminProjectsPage() {
     title_en: '', title_ar: '', desc_en: '', desc_ar: '', image_url: ''
   });
 
+  const [settings, setSettings] = useState<any>({
+    projects_title_en: '', projects_title_ar: '',
+    projects_desc_en: '', projects_desc_ar: ''
+  });
+  const [savingSettings, setSavingSettings] = useState(false);
+
   const fetchProjects = () => {
     fetch('/api/admin/projects')
       .then(res => res.json())
       .then(data => { setProjects(data); setLoading(false); });
   };
 
-  useEffect(() => { fetchProjects(); }, []);
+  const fetchSettings = () => {
+    fetch('/api/admin/settings')
+      .then(res => res.json())
+      .then(data => { setSettings(data); });
+  };
+
+  useEffect(() => { fetchProjects(); fetchSettings(); }, []);
+
+  const handleSettingsChange = (e: any) => {
+    setSettings({ ...settings, [e.target.name]: e.target.value });
+  };
+
+  const handleSaveSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingSettings(true);
+    try {
+      await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(settings),
+      });
+      alert('Section texts saved successfully! ✅');
+    } catch (err) {
+      alert('Error saving settings');
+    }
+    setSavingSettings(false);
+  };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
@@ -99,8 +131,36 @@ export default function AdminProjectsPage() {
     <div>
       <div className={styles.pageHeader}>
         <h1 className={styles.pageTitle}>Manage Projects</h1>
-        <p className={styles.pageDescription}>Add, edit, or remove projects from the homepage gallery.</p>
+        <p className={styles.pageDescription}>Add, edit, or remove projects from the homepage gallery, and customize the section title and description.</p>
       </div>
+
+      <form onSubmit={handleSaveSettings} className={styles.card} style={{ marginBottom: '2rem' }}>
+        <h3 style={{ marginBottom: '1.5rem', color: 'var(--accent-gold)' }}>Section Content (Title & Subtitle)</h3>
+        
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Title (EN)</label>
+            <input name="projects_title_en" value={settings.projects_title_en || ''} onChange={handleSettingsChange} className={styles.input} />
+          </div>
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Title (AR)</label>
+            <input name="projects_title_ar" value={settings.projects_title_ar || ''} onChange={handleSettingsChange} className={styles.input} dir="rtl" />
+          </div>
+
+          <div className={styles.formGroup} style={{ gridColumn: '1 / -1' }}>
+            <label className={styles.label}>Subtitle (EN)</label>
+            <textarea name="projects_desc_en" value={settings.projects_desc_en || ''} onChange={handleSettingsChange} className={styles.input} style={{ minHeight: '60px' }} />
+          </div>
+          <div className={styles.formGroup} style={{ gridColumn: '1 / -1' }}>
+            <label className={styles.label}>Subtitle (AR)</label>
+            <textarea name="projects_desc_ar" value={settings.projects_desc_ar || ''} onChange={handleSettingsChange} className={styles.input} style={{ minHeight: '60px' }} dir="rtl" />
+          </div>
+        </div>
+        
+        <button type="submit" disabled={savingSettings} className={styles.btnPrimary} style={{ marginTop: '1rem' }}>
+          {savingSettings ? 'Saving Texts...' : 'Save Section Texts'}
+        </button>
+      </form>
 
       {/* Add / Edit Project Form */}
       <div className={styles.card}>

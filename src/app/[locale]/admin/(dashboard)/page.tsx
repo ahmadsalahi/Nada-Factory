@@ -7,6 +7,8 @@ export default function AdminSettingsPage() {
   const [settings, setSettings] = useState<any>({
     hero_title_en: '',
     hero_title_ar: '',
+    hero_subtitle_en: '',
+    hero_subtitle_ar: '',
     hero_bg_type: 'video',
     hero_bg_url: '',
     company_profile_pdf: '',
@@ -200,6 +202,29 @@ export default function AdminSettingsPage() {
               onChange={handleChange} 
               className={styles.input} 
               dir="rtl"
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Hero Subtitle (English)</label>
+            <textarea 
+              name="hero_subtitle_en" 
+              value={settings.hero_subtitle_en || ''} 
+              onChange={handleChange} 
+              className={styles.input} 
+              style={{ minHeight: '60px' }}
+            />
+          </div>
+          
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Hero Subtitle (Arabic)</label>
+            <textarea 
+              name="hero_subtitle_ar" 
+              value={settings.hero_subtitle_ar || ''} 
+              onChange={handleChange} 
+              className={styles.input} 
+              dir="rtl"
+              style={{ minHeight: '60px' }}
             />
           </div>
         </div>

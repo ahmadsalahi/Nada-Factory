@@ -25,7 +25,7 @@ export default async function HomePage() {
   return (
     <main className="main-container">
       <HeroSection dbSettings={dbSettings} />
-      <ServicesSection dbProjects={dbProjects} />
+      <ServicesSection dbProjects={dbProjects} dbSettings={dbSettings} />
       <AboutSection dbImages={dbAboutImages} dbSettings={dbSettings} />
     </main>
   );
