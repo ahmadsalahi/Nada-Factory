@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLocale } from 'next-intl';
+import Image from 'next/image';
 import styles from './Gallery.module.css';
 
 interface GalleryProps {
@@ -98,7 +99,7 @@ export default function Gallery({ title, description, images }: GalleryProps) {
               onClick={() => setSelectedIndex(index)}
             >
               <div className={styles.imageWrapper}>
-                <img src={img} alt={`${title} - Project ${index + 1}`} className={styles.image} />
+                <Image src={img} alt={`${title} - Project ${index + 1}`} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className={styles.image} />
               </div>
             </motion.div>
           ))}

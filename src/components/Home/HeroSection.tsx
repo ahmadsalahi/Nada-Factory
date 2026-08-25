@@ -1,11 +1,11 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
+import Image from 'next/image';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef, useState } from 'react';
 import styles from './HeroSection.module.css';
 
-import { useLocale } from 'next-intl';
 import QuoteModal from './QuoteModal';
 
 export default function HeroSection({ dbSettings = {} }: { dbSettings?: any }) {
@@ -42,10 +42,12 @@ export default function HeroSection({ dbSettings = {} }: { dbSettings?: any }) {
             <source src={bgUrl} type="video/mp4" />
           </video>
         ) : (
-          <img 
+          <Image 
             key={bgUrl}
             src={bgUrl} 
             alt="Hero Background" 
+            fill
+            priority
             className={styles.videoBackground} // Reusing class for object-fit cover
           />
         )}
