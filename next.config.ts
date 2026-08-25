@@ -10,10 +10,6 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: '*.public.blob.vercel-storage.com',
-      },
-      {
-        protocol: 'https',
-        hostname: '**', // Keep generic fallback just in case it works for external URLs
       }
     ],
   },
