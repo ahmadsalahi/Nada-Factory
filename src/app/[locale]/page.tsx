@@ -3,6 +3,8 @@ import AboutSection from '@/components/Home/AboutSection';
 import ServicesSection from '@/components/Home/ServicesSection';
 import { neon } from '@neondatabase/serverless';
 
+export const dynamic = 'force-dynamic';
+
 export default async function HomePage() {
   let dbProjects: any[] = [];
   let dbAboutImages: any[] = [];
