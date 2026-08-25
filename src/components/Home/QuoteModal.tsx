@@ -71,7 +71,10 @@ export default function QuoteModal({
     } catch(e) {}
   }
 
-  if (!whatsappUrl && dbSettings?.phone) {
+  if (whatsappUrl && !whatsappUrl.startsWith('http')) {
+    const cleanPhone = whatsappUrl.replace(/[^0-9]/g, '');
+    whatsappUrl = `https://wa.me/${cleanPhone}`;
+  } else if (!whatsappUrl && dbSettings?.phone) {
     const cleanPhone = dbSettings.phone.replace(/[^0-9]/g, '');
     whatsappUrl = `https://wa.me/${cleanPhone}`;
   }

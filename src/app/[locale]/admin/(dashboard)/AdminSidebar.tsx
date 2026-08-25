@@ -38,7 +38,10 @@ export default function AdminSidebar({ locale }: { locale: string }) {
 
   return (
     <aside className={styles.sidebar}>
-      <div className={styles.brand}>NADA CMS</div>
+      <div className={styles.brand} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', marginBottom: '2rem' }}>
+        <img src="/logo.jpeg" alt="Nada Logo" style={{ height: '60px', width: 'auto', borderRadius: '4px' }} />
+        <span>NADA CMS</span>
+      </div>
       <nav className={styles.nav}>
         <Link href="/admin" className={styles.navLink}>
           <Settings size={20} /> General Info
@@ -62,8 +65,8 @@ export default function AdminSidebar({ locale }: { locale: string }) {
         </Link>
       </nav>
       <div className={styles.logoutWrapper}>
-        <a href="/" className={styles.logoutBtn} style={{ marginBottom: '0.5rem' }}>
-          <Home size={20} /> Back to Website
+        <a href="/" className={styles.logoutBtn} style={{ marginBottom: '1rem', background: 'var(--accent-gold)', color: '#000', border: 'none', fontWeight: 'bold' }}>
+          <Home size={20} /> Go to Website
         </a>
         <button onClick={handleLogout} className={styles.logoutBtn} style={{ background: 'transparent', color: '#ff4757', border: '1px solid #ff4757' }}>
           <LogOut size={20} /> Logout

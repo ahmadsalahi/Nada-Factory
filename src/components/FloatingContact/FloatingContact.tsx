@@ -4,9 +4,14 @@ import { Phone } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa6';
 import styles from './FloatingContact.module.css';
 import { useLocale } from 'next-intl';
+import { usePathname } from 'next/navigation';
 
 export default function FloatingContact({ dbSettings }: { dbSettings: any }) {
   const locale = useLocale();
+  const pathname = usePathname();
+
+  // Hide floating buttons on admin pages
+  if (pathname.includes('/admin')) return null;
 
   let whatsappUrl = dbSettings?.whatsapp || '';
   if (!whatsappUrl && dbSettings?.social_links) {
@@ -17,8 +22,11 @@ export default function FloatingContact({ dbSettings }: { dbSettings: any }) {
     } catch(e) {}
   }
   
-  // Fallback: If no WhatsApp URL is provided but we have a phone number, generate one
-  if (!whatsappUrl && dbSettings?.phone) {
+  // Sanitize WhatsApp URL to prevent 404 relative path errors
+  if (whatsappUrl && !whatsappUrl.startsWith('http')) {
+    const cleanPhone = whatsappUrl.replace(/[^0-9]/g, '');
+    whatsappUrl = `https://wa.me/${cleanPhone}`;
+  } else if (!whatsappUrl && dbSettings?.phone) {
     const cleanPhone = dbSettings.phone.replace(/[^0-9]/g, '');
     whatsappUrl = `https://wa.me/${cleanPhone}`;
   }
