@@ -52,16 +52,26 @@ export default function AdminSettingsPage() {
   };
 
   const handleBgUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    // ... exists
     if (!e.target.files || e.target.files.length === 0) return;
     const file = e.target.files[0];
+    
+    if (file.size > 4.5 * 1024 * 1024) {
+      alert("Error: File is too large! Maximum allowed size is 4.5 MB. Please compress the file or paste a link instead.");
+      return;
+    }
+
     setUploadingBg(true);
     try {
-      const res = await fetch(`/api/upload?filename=${file.name}`, { method: 'POST', body: file });
+      const res = await fetch(`/api/upload?filename=${encodeURIComponent(file.name)}`, { method: 'POST', body: file });
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`Server error ${res.status}: ${text.substring(0, 100)}`);
+      }
       const data = await res.json();
       setSettings({ ...settings, hero_bg_url: data.url });
-    } catch (err) {
-      alert("Error uploading background");
+    } catch (err: any) {
+      console.error(err);
+      alert(`Error uploading background: ${err.message || err}`);
     } finally {
       setUploadingBg(false);
     }
@@ -70,13 +80,27 @@ export default function AdminSettingsPage() {
   const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
     const file = e.target.files[0];
+    
+    // Check size on frontend first (Vercel limit is 4.5MB for server uploads)
+    if (file.size > 4.5 * 1024 * 1024) {
+      alert("Error: File is too large! Maximum allowed size is 4.5 MB. Please compress the PDF or paste a link instead.");
+      return;
+    }
+
     setUploadingPdf(true);
     try {
-      const res = await fetch(`/api/upload?filename=${file.name}`, { method: 'POST', body: file });
+      const res = await fetch(`/api/upload?filename=${encodeURIComponent(file.name)}`, { method: 'POST', body: file });
+      
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`Server error ${res.status}: ${text.substring(0, 100)}`);
+      }
+      
       const data = await res.json();
       setSettings({ ...settings, company_profile_pdf: data.url });
-    } catch (err) {
-      alert("Error uploading PDF");
+    } catch (err: any) {
+      console.error(err);
+      alert(`Error uploading PDF: ${err.message || err}`);
     } finally {
       setUploadingPdf(false);
     }
