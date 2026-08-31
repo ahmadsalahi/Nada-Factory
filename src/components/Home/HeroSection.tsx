@@ -103,19 +103,25 @@ export default function HeroSection({ dbSettings = {} }: { dbSettings?: any }) {
             {tHome('cta')}
           </motion.button>
           
-          {dbSettings.company_profile_pdf && (
-            <motion.a 
-              href={dbSettings.company_profile_pdf}
-              target="_blank"
-              rel="noreferrer"
-              className={styles.ctaButton}
-              style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              {locale === 'ar' ? 'بروفايل الشركة' : 'Our Profile'}
-            </motion.a>
-          )}
+          {(() => {
+            const pdfUrl = locale === 'ar' 
+              ? (dbSettings.company_profile_pdf_ar || dbSettings.company_profile_pdf) 
+              : (dbSettings.company_profile_pdf_en || dbSettings.company_profile_pdf);
+              
+            return pdfUrl ? (
+              <motion.a 
+                href={pdfUrl}
+                target="_blank"
+                rel="noreferrer"
+                className={styles.ctaButton}
+                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                {locale === 'ar' ? 'بروفايل الشركة' : 'Our Profile'}
+              </motion.a>
+            ) : null;
+          })()}
         </motion.div>
       </motion.div>
       

@@ -24,7 +24,7 @@ export default function AdminSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploadingBg, setUploadingBg] = useState(false);
-  const [uploadingPdf, setUploadingPdf] = useState(false);
+  const [uploadingPdf, setUploadingPdf] = useState<'en' | 'ar' | null>(null);
   const [message, setMessage] = useState('');
 
   useEffect(() => {
@@ -37,12 +37,16 @@ export default function AdminSettingsPage() {
             parsedSocialLinks = JSON.parse(data.social_links);
           } catch(e) {}
         } else {
-          // Fallback migration from old settings
           if (data.whatsapp) parsedSocialLinks.push({ icon: 'FaWhatsapp', url: data.whatsapp });
           if (data.instagram) parsedSocialLinks.push({ icon: 'FaInstagram', url: data.instagram });
           if (data.linkedin) parsedSocialLinks.push({ icon: 'FaLinkedinIn', url: data.linkedin });
         }
-        setSettings((prev: any) => ({ ...prev, ...data, social_links: parsedSocialLinks }));
+        
+        // Migrate old company_profile_pdf if exists and new ones don't
+        const pdf_en = data.company_profile_pdf_en || data.company_profile_pdf || '';
+        const pdf_ar = data.company_profile_pdf_ar || data.company_profile_pdf || '';
+
+        setSettings((prev: any) => ({ ...prev, ...data, social_links: parsedSocialLinks, company_profile_pdf_en: pdf_en, company_profile_pdf_ar: pdf_ar }));
         setLoading(false);
       });
   }, []);
@@ -77,17 +81,16 @@ export default function AdminSettingsPage() {
     }
   };
 
-  const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>, lang: 'en' | 'ar') => {
     if (!e.target.files || e.target.files.length === 0) return;
     const file = e.target.files[0];
     
-    // Check size on frontend first (Vercel limit is 4.5MB for server uploads)
     if (file.size > 4.5 * 1024 * 1024) {
       alert("Error: File is too large! Maximum allowed size is 4.5 MB. Please compress the PDF or paste a link instead.");
       return;
     }
 
-    setUploadingPdf(true);
+    setUploadingPdf(lang);
     try {
       const res = await fetch(`/api/upload?filename=${encodeURIComponent(file.name)}`, { method: 'POST', body: file });
       
@@ -97,12 +100,12 @@ export default function AdminSettingsPage() {
       }
       
       const data = await res.json();
-      setSettings({ ...settings, company_profile_pdf: data.url });
+      setSettings({ ...settings, [`company_profile_pdf_${lang}`]: data.url });
     } catch (err: any) {
       console.error(err);
       alert(`Error uploading PDF: ${err.message || err}`);
     } finally {
-      setUploadingPdf(false);
+      setUploadingPdf(null);
     }
   };
 
@@ -146,27 +149,55 @@ export default function AdminSettingsPage() {
           <h3 style={{ marginBottom: '1.5rem', color: 'var(--accent-gold)' }}>Hero Section & Company Profile</h3>
           
           <div className={styles.formGroup}>
-            <label className={styles.label}>Company Profile (PDF)</label>
+            <label className={styles.label}>Company Profile PDF (English)</label>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-              <input type="file" accept="application/pdf" onChange={handlePdfUpload} className={styles.input} style={{ flex: 1, minWidth: '200px' }} />
+              <input type="file" accept="application/pdf" onChange={(e) => handlePdfUpload(e, 'en')} className={styles.input} style={{ flex: 1, minWidth: '200px' }} />
               <span style={{ color: 'var(--text-secondary)' }}>OR</span>
               <input 
-                name="company_profile_pdf" 
-                placeholder="https://example.com/profile.pdf" 
-                value={settings.company_profile_pdf || ''} 
+                name="company_profile_pdf_en" 
+                placeholder="https://example.com/profile-en.pdf" 
+                value={settings.company_profile_pdf_en || ''} 
                 onChange={handleChange} 
                 className={styles.input} 
                 style={{ flex: 2, minWidth: '300px' }} 
               />
             </div>
-            {uploadingPdf && <span style={{ color: 'var(--accent-gold)', display: 'block', marginTop: '0.5rem' }}>Uploading PDF...</span>}
+            {uploadingPdf === 'en' && <span style={{ color: 'var(--accent-gold)', display: 'block', marginTop: '0.5rem' }}>Uploading PDF...</span>}
             
-            {settings.company_profile_pdf && (
+            {settings.company_profile_pdf_en && (
               <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                <a href={settings.company_profile_pdf} target="_blank" rel="noreferrer" style={{ color: 'var(--accent-gold)', textDecoration: 'underline' }}>
-                  View Current Profile PDF
+                <a href={settings.company_profile_pdf_en} target="_blank" rel="noreferrer" style={{ color: 'var(--accent-gold)', textDecoration: 'underline' }}>
+                  View English Profile PDF
                 </a>
-                <button type="button" onClick={() => setSettings({...settings, company_profile_pdf: ''})} className={styles.btnDanger} style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem' }}>
+                <button type="button" onClick={() => setSettings({...settings, company_profile_pdf_en: ''})} className={styles.btnDanger} style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem' }}>
+                  Remove
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Company Profile PDF (Arabic)</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+              <input type="file" accept="application/pdf" onChange={(e) => handlePdfUpload(e, 'ar')} className={styles.input} style={{ flex: 1, minWidth: '200px' }} />
+              <span style={{ color: 'var(--text-secondary)' }}>OR</span>
+              <input 
+                name="company_profile_pdf_ar" 
+                placeholder="https://example.com/profile-ar.pdf" 
+                value={settings.company_profile_pdf_ar || ''} 
+                onChange={handleChange} 
+                className={styles.input} 
+                style={{ flex: 2, minWidth: '300px' }} 
+              />
+            </div>
+            {uploadingPdf === 'ar' && <span style={{ color: 'var(--accent-gold)', display: 'block', marginTop: '0.5rem' }}>Uploading PDF...</span>}
+            
+            {settings.company_profile_pdf_ar && (
+              <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                <a href={settings.company_profile_pdf_ar} target="_blank" rel="noreferrer" style={{ color: 'var(--accent-gold)', textDecoration: 'underline' }}>
+                  View Arabic Profile PDF
+                </a>
+                <button type="button" onClick={() => setSettings({...settings, company_profile_pdf_ar: ''})} className={styles.btnDanger} style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem' }}>
                   Remove
                 </button>
               </div>
