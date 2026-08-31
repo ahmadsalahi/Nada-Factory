@@ -124,19 +124,6 @@ export default function HeroSection({ dbSettings = {} }: { dbSettings?: any }) {
           })()}
         </motion.div>
       </motion.div>
-      
-      {/* Scroll Indicator */}
-      <motion.div 
-        className={styles.scrollIndicator}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 2, duration: 1 }}
-      >
-        <div className={styles.mouse}>
-          <div className={styles.wheel}></div>
-        </div>
-      </motion.div>
-
       <QuoteModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
